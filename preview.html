@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflex Arc Tile Game</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    text-align: center;
+    padding: 30px;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+.instructions {
+    margin-bottom: 25px;
+    color: #555;
+}
+
+#tileContainer, #dropZone {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px auto;
+    max-width: 1000px;
+    min-height: 80px;
+    padding: 15px;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    background: white;
+}
+
+.tile {
+    padding: 12px 18px;
+    background: white;
+    border: 2px solid #999;
+    border-radius: 8px;
+    cursor: grab;
+    user-select: none;
+    transition: 0.2s;
+}
+
+.tile:hover {
+    border-color: red;
+}
+
+.tile.dragging {
+    opacity: 0.5;
+}
+
+button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    border: none;
+    background: #222;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #444;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<h1>Reflex Arc Arrange Game</h1>
+<p class="instructions">Drag the tiles into the correct order.</p>
+
+<h2>Tiles</h2>
+<div id="tileContainer"></div>
+
+<h2>Your Answer</h2>
+<div id="dropZone"></div>
+
+<button onclick="checkAnswer()">Check Answer</button>
+
+<div id="result"></div>
+
+<script>
+const correctOrder = [
+    "receptor detects stimulus",
+    "nerve impulse initiated",
+    "sensory neurone",
+    "across a synapse",
+    "relay neurone in spinal cord",
+    "across a synapse",
+    "motor neurone",
+    "effector muscle"
+];
+
+let shuffled = [...correctOrder].sort(() => Math.random() - 0.5);
+
+const tileContainer = document.getElementById("tileContainer");
+const dropZone = document.getElementById("dropZone");
+
+function createTiles() {
+    shuffled.forEach((text, index) => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.draggable = true;
+        tile.textContent = text;
+        tile.dataset.value = text + "_" + index; // unique id
+        addDragEvents(tile);
+        tileContainer.appendChild(tile);
+    });
+}
+
+function addDragEvents(tile) {
+    tile.addEventListener("dragstart", () => {
+        tile.classList.add("dragging");
+    });
+
+    tile.addEventListener("dragend", () => {
+        tile.classList.remove("dragging");
+    });
+}
+
+function enableDrop(zone) {
+    zone.addEventListener("dragover", e => {
+        e.preventDefault();
+        const dragging = document.querySelector(".dragging");
+        zone.appendChild(dragging);
+    });
+}
+
+enableDrop(tileContainer);
+enableDrop(dropZone);
+
+function checkAnswer() {
+    const tiles = [...dropZone.children];
+    const answer = tiles.map(tile => tile.textContent);
+
+    let correct = true;
+
+    if (answer.length !== correctOrder.length) {
+        correct = false;
+    } else {
+        for (let i = 0; i < correctOrder.length; i++) {
+            if (answer[i] !== correctOrder[i]) {
+                correct = false;
+                break;
+            }
+        }
+    }
+
+    document.getElementById("result").textContent =
+        correct ? "✅ Correct!" : "❌ Try Again!";
+}
+
+createTiles();
+</script>
+
+</body>
+</html>
